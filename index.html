@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado del Pedido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            width: 350px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        .estado {
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .id-1 { background-color: #ff4d4d; } /* Esperando */
+        .id-2 { background-color: #ff0000; } /* Pendiente */
+        .id-3 { background-color: #ffcc00; } /* En Cola */
+        .id-4 { background-color: #ff7f00; } /* En Cola (Tardanza) */
+        .id-5 { background-color: #4caf50; } /* En Camino */
+        .estado-texto { font-size: 16px; margin-top: 10px; }
+        .btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn:hover { background-color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Estado del Pedido</h1>
+        <div id="estado" class="estado id-1">
+            <span class="estado-texto">Esperando...</span>
+        </div>
+        <button class="btn" onclick="actualizarEstado()">Actualizar Estado</button>
+    </div>
+
+    <script>
+        function actualizarEstado() {
+            fetch('pedidos.json')
+                .then(response => response.json())
+                .then(data => {
+                    const estadoId = data.pedido.estado;
+                    const posicion = data.pedido.posicion || "";
+                    const estadoDiv = document.getElementById('estado');
+                    const estadoTexto = estadoDiv.querySelector('.estado-texto');
+
+                    // Mapeo de ID a texto
+                    const estados = {
+                        1: "Esperando",
+                        2: "Pendiente",
+                        3: `En Cola (Posición ${posicion})`,
+                        4: "En Cola (Tardanza)",
+                        5: "En Camino"
+                    };
+
+                    if (estados[estadoId]) {
+                        estadoDiv.className = `estado id-${estadoId}`;
+                        estadoTexto.textContent = estados[estadoId];
+                    } else {
+                        estadoDiv.className = "estado id-1";
+                        estadoTexto.textContent = "Estado desconocido";
+                    }
+                })
+                .catch(error => console.error("Error cargando el JSON:", error));
+        }
+
+        window.onload = actualizarEstado;
+    </script>
+
+</body>
+</html>
